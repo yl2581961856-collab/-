@@ -1,0 +1,35 @@
+---
+layout: layouts/base.njk
+title: 分类
+description: 主题分类索引
+---
+
+<section class="section">
+  <h2 class="section-title">分类</h2>
+  <div class="chip-row">
+    {% for group in collections.categoryList %}
+      <a class="chip" href="#{{ group.name | slug }}">{{ group.name }}</a>
+    {% endfor %}
+  </div>
+</section>
+
+{% for group in collections.categoryList %}
+  <section class="section">
+    <h3 id="{{ group.name | slug }}" class="section-subtitle">{{ group.name }}</h3>
+    <div class="card-grid">
+      {% for post in group.posts %}
+        <article class="card">
+          <a class="card-link" href="{{ post.url }}">
+            <div class="card-meta">
+              <time datetime="{{ post.date | dateISO }}">{{ post.date | dateISO }}</time>
+            </div>
+            <h3 class="card-title">{{ post.data.title }}</h3>
+            {% if post.data.description %}
+              <p class="card-desc">{{ post.data.description }}</p>
+            {% endif %}
+          </a>
+        </article>
+      {% endfor %}
+    </div>
+  </section>
+{% endfor %}

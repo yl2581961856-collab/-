@@ -1,0 +1,131 @@
+# Mintlify Starter 部署计划
+
+本计划基于 Mintlify Starter 作为模板，使用 Nginx 反向代理并通过 systemd 长期守护 Mintlify 进程，同时支持 DigitalPlat FreeDomain 申请标准域名。
+
+## 1. 项目初始化（Mintlify Starter）
+
+方案 A：使用 Mintlify Starter 仓库
+
+```bash
+mkdir -p ~/handover-docs
+cd ~/handover-docs
+git clone https://github.com/mintlify/starter.git .
+npm install
+```
+
+方案 B：使用 Mintlify init
+
+```bash
+mkdir -p ~/handover-docs
+cd ~/handover-docs
+npx mintlify init .
+npm install
+```
+
+本机先跑通：
+
+```bash
+npx mintlify dev
+```
+
+## 2. 域名（DigitalPlat FreeDomain）
+
+DigitalPlat 可申请的免费域名后缀：
+
+- .dpdns.org
+- .us.kg
+- .qzz.io
+- .xx.kg
+
+推荐流程：
+
+1. 在 DigitalPlat FreeDomain 控制台注册域名
+2. 选择 DNS 服务商（Cloudflare、FreeDNS 或 Hostry）
+3. 设置 A 记录指向服务器公网 IP
+4. Nginx 的 server_name 填写你的域名
+
+## 3. systemd 守护进程
+
+使用 systemd 保障开机自启与异常重启。
+
+```bash
+sudo nano /etc/systemd/system/mintlify.service
+```
+
+```ini
+[Unit]
+Description=Mintlify Dev Server
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/你的用户名/handover-docs
+ExecStart=/usr/bin/npx mintlify dev
+Restart=always
+RestartSec=5
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target
+```
+
+启动并自启：
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable mintlify
+sudo systemctl start mintlify
+sudo systemctl status mintlify
+```
+
+## 4. Nginx 反向代理
+
+```bash
+sudo apt-get update
+sudo apt-get install nginx
+sudo nano /etc/nginx/sites-available/handover-docs
+```
+
+```nginx
+server {
+    listen 80;
+    server_name example.dpdns.org;
+
+    location / {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_read_timeout 60s;
+        proxy_send_timeout 60s;
+        proxy_connect_timeout 5s;
+    }
+}
+```
+
+启用并重启：
+
+```bash
+sudo ln -s /etc/nginx/sites-available/handover-docs /etc/nginx/sites-enabled/
+sudo nginx -t
+sudo systemctl restart nginx
+```
+
+## 5. HTTPS（可选，推荐）
+
+```bash
+sudo apt-get install certbot python3-certbot-nginx
+sudo certbot --nginx -d example.dpdns.org
+```
+
+## 6. 运维检查
+
+```bash
+systemctl status mintlify
+journalctl -u mintlify -f
+systemctl status nginx
+```
+

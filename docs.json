@@ -1,0 +1,36 @@
+{
+  "name": "Personal Knowledge Base",
+  "navigation": [
+    {
+      "group": "🚀 Learning & Infra Notes",
+      "pages": [
+        "learning/rust-monoio-uring",
+        "learning/cpp-performance-tuning",
+        "learning/hpc-concepts"
+      ]
+    },
+    {
+      "group": "📦 Project Archives",
+      "pages": [
+        "projects/rust-voice-gateway",
+        "projects/ascend-910b-asr-deployment",
+        "projects/llm-robustness-defense-thesis",
+        "projects/cv-feasibility-assessment"
+      ]
+    },
+    {
+      "group": "📖 Reading & Explorations",
+      "pages": [
+        "explorations/tech-books-reading-list",
+        "explorations/game-dev-philosophy",
+        "explorations/cyberpunk-media-reviews"
+      ]
+    },
+    {
+      "group": "⏳ Milestones",
+      "pages": [
+        "changelog/events-timeline"
+      ]
+    }
+  ]
+}

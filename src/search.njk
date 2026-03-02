@@ -1,0 +1,78 @@
+---
+layout: layouts/base.njk
+title: 搜索
+description: 搜索文章与笔记
+---
+
+<section class="section">
+  <h2 class="section-title">搜索</h2>
+  <input id="search-input" class="search-input" type="search" placeholder="输入关键词，例如 CUDA / vLLM / Triton" />
+  <div id="search-hint" class="search-hint">输入关键词后会自动筛选。</div>
+  <div id="search-results" class="card-grid"></div>
+</section>
+
+<script>
+  const input = document.getElementById("search-input");
+  const results = document.getElementById("search-results");
+  const hint = document.getElementById("search-hint");
+  let data = [];
+
+  const normalize = (value) => String(value || "").toLowerCase();
+
+  const render = (items) => {
+    results.innerHTML = items
+      .map((item) => {
+        const category = item.category ? `<span class="card-chip">${item.category}</span>` : "";
+        return `
+          <article class="card">
+            <a class="card-link" href="${item.url}">
+              <div class="card-meta">
+                <time datetime="${item.date}">${item.date}</time>
+                ${category}
+              </div>
+              <h3 class="card-title">${item.title}</h3>
+              ${item.description ? `<p class="card-desc">${item.description}</p>` : ""}
+            </a>
+          </article>
+        `;
+      })
+      .join("");
+  };
+
+  const filterData = (query) => {
+    if (!query) {
+      hint.textContent = "输入关键词后会自动筛选。";
+      render([]);
+      return;
+    }
+    const q = normalize(query);
+    const items = data.filter((item) => {
+      const haystack = [
+        item.title,
+        item.description,
+        item.category,
+        item.tags ? item.tags.join(" ") : "",
+        item.content
+      ]
+        .map(normalize)
+        .join(" ");
+      return haystack.includes(q);
+    });
+    hint.textContent = items.length ? `共 ${items.length} 条结果` : "没有找到匹配内容";
+    render(items);
+  };
+
+  fetch("/search.json")
+    .then((res) => res.json())
+    .then((json) => {
+      data = Array.isArray(json) ? json : [];
+      const params = new URLSearchParams(location.search);
+      const q = params.get("q") || "";
+      input.value = q;
+      filterData(q);
+    });
+
+  input.addEventListener("input", (event) => {
+    filterData(event.target.value);
+  });
+</script>

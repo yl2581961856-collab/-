@@ -1,0 +1,22 @@
+---
+layout: layouts/base.njk
+---
+
+<article class="post">
+  <h1 class="post-title">{{ title }}</h1>
+  <div class="post-meta">
+    <time datetime="{{ date | dateISO }}">{{ date | readableDate }}</time>
+    {% if category %}
+      <span class="post-chip">分类：{{ category }}</span>
+    {% endif %}
+    {% if tags %}
+      <span class="post-chip">标签：{{ tags | join(", ") }}</span>
+    {% endif %}
+  </div>
+  <div class="post-body">
+    {{ content | safe }}
+  </div>
+  <div class="post-back">
+    <a href="/">← 返回目录</a>
+  </div>
+</article>

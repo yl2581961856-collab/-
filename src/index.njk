@@ -1,0 +1,33 @@
+---
+layout: layouts/base.njk
+title: 目录
+description: 文章归档
+---
+
+<section class="intro">
+  <p>这里记录我在学习与项目中的关键节点与思考。</p>
+</section>
+
+{% for group in collections.postsByYear %}
+  <section class="year-block">
+    <h2 class="year">{{ group.year }}</h2>
+    <div class="card-grid">
+      {% for post in group.posts %}
+        <article class="card">
+          <a class="card-link" href="{{ post.url }}">
+            <div class="card-meta">
+              <time datetime="{{ post.date | dateISO }}">{{ post.date | dateISO }}</time>
+              {% if post.data.category %}
+                <span class="card-chip">{{ post.data.category }}</span>
+              {% endif %}
+            </div>
+            <h3 class="card-title">{{ post.data.title }}</h3>
+            {% if post.data.description %}
+              <p class="card-desc">{{ post.data.description }}</p>
+            {% endif %}
+          </a>
+        </article>
+      {% endfor %}
+    </div>
+  </section>
+{% endfor %}
