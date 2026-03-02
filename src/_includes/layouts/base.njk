@@ -8,21 +8,35 @@
     <link rel="stylesheet" href="/assets/styles.css" />
   </head>
   <body>
-    <main class="page">
-      <header class="site-header">
-        <a class="site-title" href="/">{{ site.title }}</a>
-        <div class="site-desc">{{ site.description }}</div>
-        <nav class="site-nav">
-          <a href="/">首页</a>
-          <a href="/categories/">分类</a>
-          <a href="/tags/">标签</a>
-          <a href="/search/">搜索</a>
+    <div class="layout">
+      <aside class="sidebar">
+        <div class="sidebar-title">目录</div>
+        <nav class="sidebar-nav">
+          <a href="/projects/">项目</a>
+          <a href="/learning/">学习</a>
+          <a href="/explorations/">探索</a>
+          <a href="/thoughts/">个人想法</a>
+          <a href="/papers/">论文</a>
         </nav>
-      </header>
-      {{ content | safe }}
-      <footer class="site-footer">
-        <span>© {{ site.author }}</span>
-      </footer>
-    </main>
+      </aside>
+      <main class="page">
+        <header class="site-header">
+          <a class="site-title" href="/">{{ site.title }}</a>
+          <div class="site-desc">{{ site.description }}</div>
+          <nav class="site-nav">
+            <a href="/">首页</a>
+            <a href="/categories/">分类</a>
+            <a href="/tags/">标签</a>
+            <a href="/learning/">学习</a>
+            <a href="/projects/">项目</a>
+            <a href="/search/">搜索</a>
+          </nav>
+        </header>
+        {{ content | safe }}
+        <footer class="site-footer">
+          <span>© {{ site.author }}</span>
+        </footer>
+      </main>
+    </div>
   </body>
 </html>

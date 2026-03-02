@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Single Image Inference</title>
+    <style>
+      :root {
+        --bg: #0f1b2b;
+        --panel: #16263b;
+        --accent: #f6a031;
+        --text: #eaf0f8;
+        --muted: #9db0c8;
+        --danger: #ff6b6b;
+      }
+      * {
+        box-sizing: border-box;
+        font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      }
+      body {
+        margin: 0;
+        background: radial-gradient(circle at top, #223a57, var(--bg));
+        color: var(--text);
+      }
+      .container {
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 32px 20px 60px;
+      }
+      h1 {
+        margin: 0 0 10px;
+        font-size: 28px;
+        letter-spacing: 0.4px;
+      }
+      p {
+        color: var(--muted);
+        margin: 0 0 24px;
+      }
+      .panel {
+        background: var(--panel);
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+        margin-bottom: 24px;
+      }
+      .row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        align-items: center;
+      }
+      input[type="file"] {
+        background: #0c1826;
+        border: 1px solid #2f4563;
+        padding: 8px;
+        color: var(--text);
+        border-radius: 8px;
+      }
+      button {
+        background: var(--accent);
+        border: none;
+        color: #1b1406;
+        padding: 10px 16px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+      .status {
+        margin-top: 12px;
+        color: var(--muted);
+      }
+      .status strong {
+        color: var(--text);
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 20px;
+      }
+      .preview img {
+        width: 100%;
+        border-radius: 10px;
+        border: 1px solid #2a3f5b;
+      }
+      pre {
+        background: #0c1826;
+        padding: 12px;
+        border-radius: 8px;
+        overflow-x: auto;
+        overflow-y: auto;
+        max-height: 360px;
+        border: 1px solid #2a3f5b;
+        color: #d9e6f7;
+        font-size: 13px;
+        line-height: 1.5;
+      }
+      .error {
+        color: var(--danger);
+        margin-top: 12px;
+      }
+      .muted {
+        color: var(--muted);
+      }
+      .actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 12px;
+      }
+      .pill {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 999px;
+        background: #223a57;
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .summary {
+        display: grid;
+        gap: 8px;
+        margin-bottom: 12px;
+        padding: 10px 12px;
+        border: 1px solid #2a3f5b;
+        border-radius: 8px;
+        background: #0c1826;
+        font-size: 14px;
+      }
+      .summary span {
+        color: var(--muted);
+      }
+      @media (max-width: 640px) {
+        .row {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+        button {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Single Image Inference</h1>
+      <p>Upload a single JPEG image, then wait for the job to finish.</p>
+
+      <div class="panel">
+        <div class="row">
+          <input id="fileInput" type="file" accept="image/jpeg,image/jpg" />
+          <button id="uploadBtn">Upload & Run</button>
+        </div>
+        <div class="status">
+          Job ID: <strong id="jobId">-</strong>
+          <span class="pill" id="jobStatus">idle</span>
+        </div>
+        <div class="error" id="errorMsg"></div>
+      </div>
+
+      <div class="panel">
+        <div class="grid">
+          <div class="preview">
+            <h3>Image</h3>
+            <img id="previewImg" alt="preview" />
+          </div>
+          <div>
+            <h3>Result JSON</h3>
+            <div class="summary" id="summaryBox">
+              <div>Overall: <span id="summaryOverall">-</span></div>
+              <div>Review needed: <span id="summaryReview">-</span></div>
+              <div>Reason: <span id="summaryReason">-</span></div>
+            </div>
+            <pre id="jsonResult">{}</pre>
+            <div class="actions">
+              <button id="downloadBtn" disabled>Download JSON</button>
+            </div>
+            <div class="muted" id="logHint"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const fileInput = document.getElementById("fileInput");
+      const uploadBtn = document.getElementById("uploadBtn");
+      const jobIdEl = document.getElementById("jobId");
+      const statusEl = document.getElementById("jobStatus");
+      const errorEl = document.getElementById("errorMsg");
+      const previewImg = document.getElementById("previewImg");
+      const jsonResult = document.getElementById("jsonResult");
+      const downloadBtn = document.getElementById("downloadBtn");
+      const logHint = document.getElementById("logHint");
+      const summaryOverall = document.getElementById("summaryOverall");
+      const summaryReview = document.getElementById("summaryReview");
+      const summaryReason = document.getElementById("summaryReason");
+
+      let jobId = null;
+      let pollTimer = null;
+
+      function setStatus(text) {
+        statusEl.textContent = text;
+      }
+
+      function setError(msg) {
+        errorEl.textContent = msg || "";
+      }
+
+      function resetUI() {
+        jobId = null;
+        jobIdEl.textContent = "-";
+        setStatus("idle");
+        setError("");
+        previewImg.src = "";
+        jsonResult.textContent = "{}";
+        summaryOverall.textContent = "-";
+        summaryReview.textContent = "-";
+        summaryReason.textContent = "-";
+        downloadBtn.disabled = true;
+        logHint.textContent = "";
+      }
+
+      async function uploadAndRun() {
+        const file = fileInput.files[0];
+        if (!file) {
+          setError("Please select a JPEG image.");
+          return;
+        }
+        if (!file.type.includes("jpeg") && !file.name.toLowerCase().endsWith(".jpg") && !file.name.toLowerCase().endsWith(".jpeg")) {
+          setError("Only .jpg/.jpeg files are supported.");
+          return;
+        }
+        setError("");
+        uploadBtn.disabled = true;
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        try {
+          const resp = await fetch("/api/infer", {
+            method: "POST",
+            body: formData,
+          });
+          if (!resp.ok) {
+            const data = await resp.json().catch(() => ({}));
+            throw new Error(data.detail || "Upload failed.");
+          }
+          const data = await resp.json();
+          jobId = data.job_id;
+          jobIdEl.textContent = jobId;
+          setStatus(data.status || "queued");
+          previewImg.src = URL.createObjectURL(file);
+          jsonResult.textContent = "{}";
+          downloadBtn.disabled = true;
+          logHint.textContent = "";
+          startPolling();
+        } catch (err) {
+          setError(err.message || String(err));
+        } finally {
+          uploadBtn.disabled = false;
+        }
+      }
+
+      async function pollStatus() {
+        if (!jobId) return;
+        try {
+          const resp = await fetch(`/api/infer/${jobId}`);
+          if (!resp.ok) {
+            throw new Error("Failed to fetch job status.");
+          }
+          const data = await resp.json();
+          setStatus(data.status || "unknown");
+          if (data.status === "done") {
+            stopPolling();
+            await loadResult();
+          } else if (data.status === "failed") {
+            stopPolling();
+            setError(data.error || "Job failed. Check stderr.log.");
+            logHint.textContent = "Check stderr.log in the job directory for details.";
+          }
+        } catch (err) {
+          setError(err.message || String(err));
+        }
+      }
+
+      async function loadResult() {
+        if (!jobId) return;
+        const resp = await fetch(`/api/result/${jobId}`);
+        if (!resp.ok) {
+          setError("Failed to load result.json.");
+          return;
+        }
+        const data = await resp.json();
+        jsonResult.textContent = JSON.stringify(data, null, 2);
+        const final = data.final || {};
+        const overall = final.overall || {};
+        const review = final.review || {};
+        summaryOverall.textContent = overall.compliant_single || "-";
+        summaryReview.textContent = review.needed || "-";
+        summaryReason.textContent = overall.reason || review.reason || "-";
+        previewImg.src = `/api/image/${jobId}`;
+        downloadBtn.disabled = false;
+        logHint.textContent = "result.json and infer_out.jsonl are stored on the server.";
+      }
+
+      function startPolling() {
+        stopPolling();
+        pollTimer = setInterval(pollStatus, 2000);
+      }
+
+      function stopPolling() {
+        if (pollTimer) {
+          clearInterval(pollTimer);
+          pollTimer = null;
+        }
+      }
+
+      downloadBtn.addEventListener("click", () => {
+        if (!jobId) return;
+        const link = document.createElement("a");
+        link.href = `/api/result/${jobId}`;
+        link.download = "result.json";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      });
+
+      uploadBtn.addEventListener("click", () => {
+        resetUI();
+        uploadAndRun();
+      });
+    </script>
+  </body>
+</html>

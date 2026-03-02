@@ -5,7 +5,9 @@ layout: layouts/base.njk
 <article class="post">
   <h1 class="post-title">{{ title }}</h1>
   <div class="post-meta">
-    <time datetime="{{ date | dateISO }}">{{ date | readableDate }}</time>
+    {% if date %}
+      <time datetime="{{ date | dateISO }}">{{ date | readableDate }}</time>
+    {% endif %}
     {% if category %}
       <span class="post-chip">分类：{{ category }}</span>
     {% endif %}

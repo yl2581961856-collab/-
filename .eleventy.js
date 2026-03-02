@@ -85,6 +85,21 @@ module.exports = function (eleventyConfig) {
       .sort((a, b) => a.name.localeCompare(b.name, "zh-CN"));
   });
 
+  const sortByTitle = (items) =>
+    items.slice().sort((a, b) => String(a.data.title || "").localeCompare(String(b.data.title || ""), "zh-CN"));
+
+  eleventyConfig.addCollection("learningList", (collectionApi) => {
+    return sortByTitle(collectionApi.getFilteredByGlob("src/learning/*.md"));
+  });
+
+  eleventyConfig.addCollection("projectsList", (collectionApi) => {
+    return sortByTitle(collectionApi.getFilteredByGlob("src/projects/*.md"));
+  });
+
+  eleventyConfig.addCollection("explorationsList", (collectionApi) => {
+    return sortByTitle(collectionApi.getFilteredByGlob("src/explorations/*.md"));
+  });
+
   return {
     dir: {
       input: "src",

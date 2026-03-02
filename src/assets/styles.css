@@ -1,9 +1,48 @@
+@import url("https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&display=swap");
+
 body {
   margin: 0;
-  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, "Times New Roman", serif;
-  line-height: 1.75;
+  font-family: "Rubik", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+    "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", "Source Han Sans SC", "Noto Sans", Arial,
+    sans-serif;
+  font-size: 18px;
+  line-height: 1.85;
+  letter-spacing: -0.01em;
   background: #fafafa;
   color: #222;
+}
+
+code,
+pre,
+kbd,
+samp {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+}
+
+code,
+pre code {
+  font-weight: 400;
+}
+
+code {
+  background: #f0f0f0;
+  border: 1px solid #e1e1e1;
+  border-radius: 6px;
+  padding: 0 6px;
+}
+
+pre {
+  background: #f0f0f0;
+  border: 1px solid #e1e1e1;
+  border-radius: 12px;
+  padding: 16px 18px;
+  overflow-x: auto;
+}
+
+pre code {
+  background: transparent;
+  border: 0;
+  padding: 0;
 }
 
 a {
@@ -15,10 +54,44 @@ a:hover {
   text-decoration: underline;
 }
 
-.page {
-  max-width: 680px;
+.layout {
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 56px 20px 96px;
+  padding: 56px 32px 96px;
+  display: grid;
+  grid-template-columns: minmax(180px, 240px) minmax(0, 1fr);
+  gap: 48px;
+  align-items: start;
+}
+
+.page {
+  min-width: 0;
+}
+
+.sidebar {
+  position: sticky;
+  top: 40px;
+  align-self: start;
+  color: #555;
+}
+
+.sidebar-title {
+  font-size: 15px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  color: #888;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 16px;
+}
+
+.sidebar-nav a {
+  padding: 6px 0;
 }
 
 .site-header {
@@ -26,13 +99,14 @@ a:hover {
 }
 
 .site-title {
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 600;
 }
 
 .site-desc {
   margin-top: 6px;
   color: #666;
+  font-size: 16px;
 }
 
 .site-nav {
@@ -40,7 +114,7 @@ a:hover {
   display: flex;
   gap: 16px;
   flex-wrap: wrap;
-  font-size: 14px;
+  font-size: 15px;
   color: #555;
 }
 
@@ -55,12 +129,12 @@ a:hover {
 
 .section-title {
   margin: 0 0 12px;
-  font-size: 18px;
+  font-size: 20px;
 }
 
 .section-subtitle {
   margin: 24px 0 12px;
-  font-size: 16px;
+  font-size: 18px;
 }
 
 .chip-row {
@@ -76,13 +150,13 @@ a:hover {
   border: 1px solid #e0e0e0;
   border-radius: 999px;
   background: #fff;
-  font-size: 12px;
+  font-size: 13px;
   color: #555;
 }
 
 .year {
   margin: 32px 0 12px;
-  font-size: 16px;
+  font-size: 18px;
   letter-spacing: 0.02em;
 }
 
@@ -113,8 +187,8 @@ a:hover {
 .card-meta {
   color: #777;
   font-variant-numeric: tabular-nums;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-  font-size: 12px;
+  font-family: inherit;
+  font-size: 13px;
   margin-bottom: 10px;
   display: flex;
   gap: 8px;
@@ -123,7 +197,7 @@ a:hover {
 }
 
 .card-chip {
-  font-size: 11px;
+  font-size: 12px;
   border: 1px solid #e0e0e0;
   padding: 2px 8px;
   border-radius: 999px;
@@ -133,14 +207,14 @@ a:hover {
 
 .card-title {
   margin: 0 0 10px;
-  font-size: 16px;
+  font-size: 17px;
   line-height: 1.4;
 }
 
 .card-desc {
   margin: 0;
   color: #555;
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.6;
 }
 
@@ -150,30 +224,39 @@ a:hover {
   }
 }
 
+@media (max-width: 960px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    position: static;
+  }
+}
+
 .post-title {
   margin: 0 0 8px;
-  font-size: 28px;
+  font-size: 34px;
   line-height: 1.3;
 }
 
 .post-meta {
   margin-bottom: 24px;
   color: #777;
-  font-size: 13px;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size: 14px;
+  font-family: inherit;
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
 }
 
 .post-chip {
-  font-size: 12px;
+  font-size: 13px;
   border: 1px solid #e0e0e0;
   padding: 2px 8px;
   border-radius: 999px;
   color: #666;
   background: #f8f8f8;
-  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, "Times New Roman", serif;
 }
 
 .post-body {
@@ -206,7 +289,7 @@ a:hover {
 
 .post-body h2 {
   margin-top: 28px;
-  font-size: 18px;
+  font-size: 22px;
 }
 
 .post-body ul {
@@ -215,19 +298,19 @@ a:hover {
 
 .post-back {
   margin-top: 36px;
-  font-size: 14px;
+  font-size: 15px;
 }
 
 .site-footer {
   margin-top: 48px;
   color: #888;
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .search-input {
   width: 100%;
   padding: 12px 14px;
-  font-size: 15px;
+  font-size: 16px;
   border-radius: 10px;
   border: 1px solid #e0e0e0;
   background: #fff;
@@ -235,7 +318,7 @@ a:hover {
 }
 
 .search-hint {
-  font-size: 13px;
+  font-size: 14px;
   color: #666;
   margin-bottom: 16px;
 }

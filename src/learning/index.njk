@@ -1,0 +1,22 @@
+---
+layout: layouts/base.njk
+title: 学习
+description: 主题学习笔记
+---
+
+<section class="section">
+  <h2 class="section-title">学习</h2>
+  <p class="card-desc">这里是主题式学习笔记：概念框架 + 关键术语 + 常见误区，方便快速回忆与对外讲解。</p>
+  <div class="card-grid">
+    {% for note in collections.learningList %}
+      <article class="card">
+        <a class="card-link" href="{{ note.url }}">
+          <h3 class="card-title">{{ note.data.title }}</h3>
+          {% if note.data.description %}
+            <p class="card-desc">{{ note.data.description }}</p>
+          {% endif %}
+        </a>
+      </article>
+    {% endfor %}
+  </div>
+</section>

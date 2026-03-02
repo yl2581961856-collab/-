@@ -1,0 +1,22 @@
+---
+layout: layouts/base.njk
+title: 探索
+description: 读书、思考与随手试验
+---
+
+<section class="section">
+  <h2 class="section-title">探索</h2>
+  <p class="card-desc">这里更偏“输入与灵感”：读书、作品、随手实验与观点备忘，保留未经打磨但有价值的第一手笔记。</p>
+  <div class="card-grid">
+    {% for note in collections.explorationsList %}
+      <article class="card">
+        <a class="card-link" href="{{ note.url }}">
+          <h3 class="card-title">{{ note.data.title }}</h3>
+          {% if note.data.description %}
+            <p class="card-desc">{{ note.data.description }}</p>
+          {% endif %}
+        </a>
+      </article>
+    {% endfor %}
+  </div>
+</section>

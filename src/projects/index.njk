@@ -1,0 +1,22 @@
+---
+layout: layouts/base.njk
+title: 项目
+description: 工程实践与复盘归档
+---
+
+<section class="section">
+  <h2 class="section-title">项目</h2>
+  <p class="card-desc">这里放“能复盘、能复现”的工程实践。偏过程沉淀（取舍、踩坑、回归指标），而不是只展示结果。</p>
+  <div class="card-grid">
+    {% for note in collections.projectsList %}
+      <article class="card">
+        <a class="card-link" href="{{ note.url }}">
+          <h3 class="card-title">{{ note.data.title }}</h3>
+          {% if note.data.description %}
+            <p class="card-desc">{{ note.data.description }}</p>
+          {% endif %}
+        </a>
+      </article>
+    {% endfor %}
+  </div>
+</section>
