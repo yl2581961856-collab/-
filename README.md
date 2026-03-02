@@ -1,135 +1,50 @@
-# Mintlify Starter Deployment Plan
+# Personal Knowledge Site
 
-This plan uses the Mintlify Starter repository as the base and deploys a long‑running Mintlify dev server behind Nginx. It also includes domain acquisition using DigitalPlat FreeDomain.
+This repository powers a personal website for iterating on my knowledge system and recording real‑world lessons learned. The content focuses on continuous updates, practical experiments, and distilled takeaways.
 
-## 1. Project Setup (Mintlify Starter)
+## Tech Stack
 
-Option A: Use Mintlify Starter repository
+- Eleventy (11ty)
+- Markdown + Nunjucks
+
+## Local Development
 
 ```bash
-mkdir -p ~/handover-docs
-cd ~/handover-docs
-git clone https://github.com/mintlify/starter.git .
 npm install
+npm run dev
 ```
 
-Option B: Use Mintlify init
+Open:
+
+- http://localhost:8080
+
+## Build
 
 ```bash
-mkdir -p ~/handover-docs
-cd ~/handover-docs
-npx mintlify init .
-npm install
+npm run build
 ```
 
-Run locally to verify:
+Output is generated in `dist/`.
 
-```bash
-npx mintlify dev
+## Content Structure
+
+- `src/posts/` for blog posts
+- `learning/`, `projects/`, `explorations/` for topic notes and archives
+
+### Post Front Matter
+
+```yaml
+---
+title: "Title"
+description: "Short summary"
+date: 2026-03-02
+category: "Theory"
+tags: ["Pretrain", "Fine-tune"]
+---
 ```
 
-## 2. Domain (DigitalPlat FreeDomain)
+## Purpose
 
-DigitalPlat provides free domains such as:
-
-- .dpdns.org
-- .us.kg
-- .qzz.io
-- .xx.kg
-
-Recommended flow:
-
-1. Register a domain in the DigitalPlat FreeDomain dashboard.
-2. Use a DNS provider (Cloudflare, FreeDNS, or Hostry).
-3. Create A records to point the domain to your server public IP.
-4. Set Nginx server_name to the chosen domain.
-
-## 3. Long‑Running Service (systemd)
-
-Create a systemd service to keep Mintlify running and restart on failure.
-
-```bash
-sudo nano /etc/systemd/system/mintlify.service
-```
-
-```ini
-[Unit]
-Description=Mintlify Dev Server
-After=network.target
-
-[Service]
-Type=simple
-WorkingDirectory=/home/你的用户名/handover-docs
-ExecStart=/usr/bin/npx mintlify dev
-Restart=always
-RestartSec=5
-Environment=NODE_ENV=production
-
-[Install]
-WantedBy=multi-user.target
-```
-
-Enable and start:
-
-```bash
-sudo systemctl daemon-reload
-sudo systemctl enable mintlify
-sudo systemctl start mintlify
-sudo systemctl status mintlify
-```
-
-## 4. Nginx Reverse Proxy
-
-```bash
-sudo apt-get update
-sudo apt-get install nginx
-sudo nano /etc/nginx/sites-available/handover-docs
-```
-
-```nginx
-server {
-    listen 80;
-    server_name example.dpdns.org;
-
-    location / {
-        proxy_pass http://127.0.0.1:3000;
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-        proxy_read_timeout 60s;
-        proxy_send_timeout 60s;
-        proxy_connect_timeout 5s;
-    }
-}
-```
-
-Enable and restart:
-
-```bash
-sudo ln -s /etc/nginx/sites-available/handover-docs /etc/nginx/sites-enabled/
-sudo nginx -t
-sudo systemctl restart nginx
-```
-
-## 5. HTTPS (Optional, Recommended)
-
-Use Certbot for TLS:
-
-```bash
-sudo apt-get install certbot python3-certbot-nginx
-sudo certbot --nginx -d example.dpdns.org
-```
-
-## 6. Operations
-
-Check status and logs:
-
-```bash
-systemctl status mintlify
-journalctl -u mintlify -f
-systemctl status nginx
-```
-
+- Evolve a personal knowledge system
+- Track practical experiments and pitfalls
+- Keep long‑term technical notes organized
